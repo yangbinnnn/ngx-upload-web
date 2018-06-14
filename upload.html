@@ -1,0 +1,24 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>上传</title>
+    <style>
+        .from-box {
+            width: 480px;
+            margin: 0 auto;
+            background-color: bisque;
+        }
+    </style>
+</head>
+<body>
+    <div class="from-box">
+        <h3>上传文件到op.cloudhua.com <span style="color: cornflowerblue">public</span> 目录</h3>
+        <form action="/upload" method="post", enctype="multipart/form-data">
+            选择文件: <input type="file" name="file">
+            <input type="submit" value="上传">
+        </form>
+    </div>
+</body>
+</html>
