@@ -4,8 +4,10 @@
 local upload = require "resty.upload"
 local cjson = require "cjson"
 
+
 local chunk_size = 4096
 local home = "/tmp/upload"
+
 
 local form, err = upload:new(chunk_size)
 if not form then
@@ -14,6 +16,10 @@ if not form then
 end
 
 form:set_timeout(1000) -- 1 sec
+
+local function getsubdir(uri)
+    return url:sub(7, -1)
+end
 
 local function split(s, delimiter)
     result = {};
@@ -45,6 +51,7 @@ local function getfilename(line)
 end
 
 local filename = ""
+local subdir = getsubdir(ngx.var.request_uri)
 local file
 
 while true do
@@ -60,7 +67,7 @@ while true do
                 ngx.say("filename not found")
             end
             
-            local path = home .. "/" .. filename
+            local path = home .. subdir .. filename
             file = io.open(path, "w+")
             if not file then
                 ngx.say("open " .. path .. " failed")
