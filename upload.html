@@ -3,22 +3,94 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>上传</title>
-    <style>
-        .form-box {
-            width: 480px;
-            margin: 0 auto;
-            background-color: bisque;
-        }
-    </style>
+    <link rel="stylesheet" href="https://unpkg.com/iview@2.14.3/dist/styles/iview.css">
+    <script src="https://unpkg.com/vue@2.5.16/dist/vue.min.js"></script>
+    <script src="https://unpkg.com/iview@2.14.3/dist/iview.min.js"></script>
+    <title>文件上传服务</title>
 </head>
 <body>
-    <div class="form-box">
-        <h3>上传文件到 <a href="https://op.cloudhua.com" style="color: cornflowerblue">public</a> 目录</h3>
-        <form action="/upload" method="post", enctype="multipart/form-data">
-            选择文件: <input type="file" name="file">
-            <input type="submit" value="上传">
-        </form>
+    <div id="app">
+        <card>
+        <span>上传文件到
+        <i-select v-model="selectedDir" style="width:200px">
+            <i-option v-for="dir in dirs" :value="dir" :key="dir">{{ dir }}</i-option>
+        </i-select>目录</span>
+        <i-button type="primary" @click="redirect" style="margin-left: 30px">访问目录</i-button>
+        </card>
+        <upload
+            multiple
+            type="drag"
+            :action="uploadUrl"
+            :before-upload="breforUpload">
+            <div style="padding: 20px 0">
+                <icon type="ios-cloud-upload" size="52" style="color: #3399ff"></icon>
+                <p>点击或拖拽文件上传</p>
+            </div>
+        </upload>
     </div>
+
+    <script>
+
+        function ajax(option) {                                                                                    
+            return new Promise((resolve, reject) => {                                                                
+                let xhr = new XMLHttpRequest()                                                                         
+                xhr.open(option.method || 'GET', option.url)                                                           
+                xhr.onload = () => {                                                                                   
+                let data = JSON.parse(xhr.responseText)                                                              
+                resolve(data)                                                                                        
+                }                                                                                                      
+                xhr.onerror = error => {                                                                               
+                reject(error)                                                                                        
+                }                                                                                                      
+                xhr.send(option.data ? JSON.stringify(option.data) : null)                                             
+            })                                                                                                       
+        } 
+
+        new Vue({
+            el: '#app',
+            data: {
+                dirs: [],
+                selectedDir: '',
+                uploadUrl: ''
+            },
+            mounted() {
+                this.dirs = [
+                    '/',
+                    '/go'
+                ]
+                this.selectedDir = '/'
+                this.uploadUrl = ''
+                this.uploadApi = '/_upload'
+                // this.listdir()
+            },
+            methods: {
+                redirect: function() {
+                    if (this.selectedDir !== '/') {
+                        window.location.href = this.selectedDir + '/'
+                    } else {
+                        window.location.href = this.selectedDir
+                    }
+                },
+                async listdir() {
+                    this.dirs = await ajax({
+                        url: '/listdir'
+                    })
+                },
+                breforUpload: function() {
+                    if (this.selectedDir !== '/') {
+                        this.uploadUrl = this.uploadApi + this.selectedDir
+                    } else {
+                        this.uploadUrl = this.uploadApi
+                    }
+                    let promise = new Promise((resolve) => {
+                        this.$nextTick(function () {
+                            resolve(true);
+                        })
+                    })
+                    return promise
+                }
+            }
+        })
+    </script>
 </body>
 </html>

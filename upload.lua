@@ -18,7 +18,7 @@ end
 form:set_timeout(1000) -- 1 sec
 
 local function getsubdir(uri)
-    return url:sub(7, -1)
+    return uri:gsub("^/_upload", "")
 end
 
 local function split(s, delimiter)
@@ -58,19 +58,21 @@ while true do
     local typ, res, err = form:read()
     if not typ then
         ngx.say("failed to read: ", err)
-        return
+        ngx.exit(500)
     end        
     if typ == "header" then
         if res[1] == "Content-Disposition" then
             filename = getfilename(res[2])
             if filename == "" then
                 ngx.say("filename not found")
+                ngx.exit(400)
             end
             
-            local path = home .. subdir .. filename
-            file = io.open(path, "w+")
+            local path = home .. subdir .. "/" .. filename
+            file = assert(io.open(path, "w+"))
             if not file then
                 ngx.say("open " .. path .. " failed")
+                ngx.exit(500)
             end
         end
     elseif typ == "body" then
