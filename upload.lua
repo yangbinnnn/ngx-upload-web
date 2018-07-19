@@ -6,7 +6,7 @@ local cjson = require "cjson"
 
 
 local chunk_size = 4096
-local home = "/tmp/upload"
+local home = "/path/to/public"
 
 
 local form, err = upload:new(chunk_size)
