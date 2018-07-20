@@ -38,3 +38,36 @@ data: {
 
 # 预览
 ![upload](./upload.png)
+
+# 扩展功能
+在openresty(nginx) 返回的静态文件目录html 页面中注入上传功能代码，以便在每一个页面都能上传文件到静态目录,
+需要安装[ngx_http_sub_module](http://nginx.org/en/docs/http/ngx_http_sub_module.html)
+
+只需增加以下三行配置, 通过`sub_filter` 在`</body>` 元素前注入上传功能代码
+```
+sub_filter_once on;
+set_by_lua_file $inject_div_before_body /path/to/inject.lua;
+sub_filter '</body>' $inject_div_before_body;
+```
+
+完整示例如下：
+```
+server {
+    listen       80;
+    location / {
+        sub_filter_once on;
+        set_by_lua_file $inject_div_before_body /path/to/inject.lua;
+        sub_filter '</body>' $inject_div_before_body;
+        autoindex on;
+        alias /path/to/public/;
+    }
+
+    location ~ ^/_upload {
+        client_max_body_size 4000m;
+        content_by_lua_file /path/to/upload.lua;
+    }
+}
+```
+
+# 预览
+![inject-upload](./inject.png)

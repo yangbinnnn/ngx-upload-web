@@ -51,7 +51,7 @@ local function getfilename(line)
 end
 
 local filename = ""
-local subdir = getsubdir(ngx.var.request_uri)
+local subdir = getsubdir(ngx.var.uri)
 local file
 
 while true do
